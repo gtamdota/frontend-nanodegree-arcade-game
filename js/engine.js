@@ -91,6 +91,9 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
+        allGems.gems.forEach(function(gem) {
+            gem.update();
+        });
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
@@ -135,7 +138,6 @@ var Engine = (function(global) {
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
             }
         }
-
         renderEntities();
     }
 
@@ -147,11 +149,15 @@ var Engine = (function(global) {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */
+        allGems.gems.forEach(function(gem) {
+            gem.render();
+        });
         allEnemies.forEach(function(enemy) {
             enemy.render();
         });
 
         player.render();
+        dashboard.render();
     }
 
     /* This function does nothing but it could have been a good place to
@@ -171,7 +177,10 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/char-boy.png',
+        'images/Gem Blue.png',
+        'images/Gem Green.png',
+        'images/Gem Orange.png',
     ]);
     Resources.onReady(init);
 
