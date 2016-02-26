@@ -1,6 +1,15 @@
-frontend-nanodegree-arcade-game
+# Easy Frogger Game
 ===============================
+This is an easy Frogger game developed in a HTML5 canvas.
 
-Students should use this [rubric](https://www.udacity.com/course/viewer/#!/c-nd001/l-2696458597/m-2687128535) for self-checking their submission.
+You will win after reaching the water on the other side of the map. Bugs are
+crawling everywhere, get rid of them or you will die. There are also lots of
+gems randomly appearing here and there, collect them to increase your scores.
+  Be careful, your position and score will be reset once you are die.
 
-For detailed instructions on how to get started, check out this [guide](https://docs.google.com/document/d/1v01aScPjSWCCWQLIpFqvg3-vXLH2e8_SZQKC8jNO0Dc/pub?embedded=true).
+## Start the game
+1. Open index.html.
+
+## How to play
+1. Use the arrow keys to move up, down, left, right.
+2. Collect gems as many as possible before reaching to the river.

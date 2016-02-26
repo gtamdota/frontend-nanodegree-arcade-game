@@ -51,9 +51,58 @@ function pixelY(y) {
 }
 
 
+/**
+ * Inherits |childCtor| from |parentCtor|. It should be called immediately after
+ * the definition of |childCtor|.
+ * @param {Function} childCtor
+ * @param {Function} parentCtor
+ */
+function inherits(childCtor, parentCtor) {
+    childCtor.prototype = Object.create(parentCtor.prototype);
+    childCtor.prototype.constructor = childCtor;
+}
+
+
+
+/**
+ * Basic game item, which takes place of a block in the map. It contains the
+ * position information, and some basic functions for rendering and updating.
+ * @constructor
+ * @param {number} x X of coordinate.
+ * @param {number} y Y of coordinate.
+ * @param {string} sprite Sprite of the item.
+ */
+var Item = function(x, y, sprite) {
+    /** @type {number} */
+    this.x = x;
+    /** @type {number} */
+    this.y = y;
+    /** @type {string} */
+    this.sprite = sprite;
+};
+
+
+/**
+ * Draw the enemy on the screen, required method for game.
+ */
+Item.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), pixelX(this.x), pixelY(this.y));
+};
+
+
+/**
+ * Update the position, if the position information has already updated
+ * else where, you don't need to anything here but call render directly.
+ * @param {number} dt A time delta between ticks.
+ */
+Item.prototype.update = function(dt) {
+    this.render();
+};
+
 
 /**
  * @constructor
+ * @extends {Item}
  * @param {number} x
  * @param {number} y
  * @param {string} sprite Sprite of gem.
@@ -61,25 +110,11 @@ function pixelY(y) {
  * Create a gem in position (x, y). Player could get |score| after eating it.
  */
 var Gem = function(x, y, sprite, score) {
-    /** @type {number} X of gem coordinate. */
-    this.x = x;
-    /** @type {number} Y of gem coordinate. */
-    this.y = y;
-    /** @type {string} */
-    this.sprite = sprite;
+    Item.call(this, x, y, sprite);
     /** @type {number} Score of gem. */
     this.score = score;
 };
-
-
-Gem.prototype.update = function() {
-    this.render();
-}
-
-
-Gem.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), pixelX(this.x), pixelY(this.y));
-};
+inherits(Gem, Item);
 
 
 /**
@@ -128,9 +163,9 @@ Gems.prototype.removeGemIfInPosition = function(x, y) {
  */
 Gems.prototype.createGem = function() {
     var gemType = [
-        {score: 300, sprite: 'images/Gem Blue.png'},
-        {score: 200, sprite: 'images/Gem Green.png'},
-        {score: 100, sprite: 'images/Gem Orange.png'},
+        {score: 300, sprite: 'images/gem-blue.png'},
+        {score: 200, sprite: 'images/gem-green.png'},
+        {score: 100, sprite: 'images/gem-orange.png'},
     ];
 
     var type = gemType[randomN(0, gemType.length)];
@@ -159,40 +194,19 @@ var allGems = new Gems(2);
 
 /**
  * @constructor
- *  Player of the game.
+ * @extends {Item}
+ * Player of the game.
  */
 var Player = function() {
-    /**
-     * @type {string} The image of player. It should be pre-loaded by Engine.
-     */
-    this.sprite = 'images/char-boy.png';
-
-    /**
-     * @type {number} X of player .
-     */
-    this.x = 2;
-
-    /**
-     * @type {number} Y of player . For a new player, it should
-     * stand in position (2, 4).
-     */
-    this.y = 4;
+    // The initial position is (2, 4).
+    Item.call(this, 2, 4, 'images/char-boy.png');
 
     /**
      * @type {number} Score of player.
      */
     this.score = 0;
 };
-
-
-Player.prototype.update = function() {
-    this.render();
-};
-
-
-Player.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), pixelX(this.x), pixelY(this.y));
-};
+inherits(Player, Item);
 
 
 /**
@@ -219,7 +233,7 @@ Player.prototype.move = function(dx, dy) {
         ny < 0 || ny >= MAP_ROW_NUMBER) {
         return;
     }
-    if (this.y == 1) {
+    if (this.y < 1) {
         // Drop into river.
         this.reset();
         return;
@@ -372,9 +386,12 @@ Enemy.prototype.hitPlayer = function() {
     // The player icon is smaller than the block size visually, so we slightly
     // adjust the player size(0.8 * blockWidth) to make it more real.
     var playerLeft = pixelX(player.x + 0.1);
-    var playerRight = pixelX(player.x - 0.1);
-    var hit = playerLeft <= this.pixelX && this.pixelX <= playerRight &&
-         this.y == player.y;
+    var playerRight = pixelX(player.x + 0.9);
+
+    var left = this.pixelX;
+    var right = this.pixelX + pixelX(0.9);
+    var hit = (playerLeft <= right && playerRight >= left) &&
+        player.y == this.y;
     if (hit) {
         // For debugging.
         window.console.log(playerLeft + ',' + this.pixelX + ','
@@ -390,8 +407,7 @@ Enemy.prototype.hitPlayer = function() {
 var allEnemies = function(cnt) {
     var enemies = [];
     for (var i = 0; i < cnt; i++) {
-        var speed = Math.round(Math.random() * 1000) % 10 + 1;
-        enemies.push(new Enemy(Enemy.randomRow(), speed));
+        enemies.push(new Enemy(Enemy.randomRow(), randomN(1, 10)));
     }
     window.console.log(enemies);
     return enemies;
