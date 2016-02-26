@@ -1,5 +1,4 @@
 # Easy Frogger Game
-===============================
 This is an easy Frogger game developed in a HTML5 canvas.
 
 You will win after reaching the water on the other side of the map. Bugs are
